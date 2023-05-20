@@ -1,9 +1,11 @@
 
 const shaderDivs = document.querySelectorAll('.shader');
+const loadingPage = document.querySelector('.loading');
 
-shaderDivs.forEach(element => {
+shaderDivs.forEach((element, i) => {
 
     const image = element.querySelector('img');
+
 
     imagesLoaded(image, () => {
         const canvas = document.createElement('canvas');
@@ -46,6 +48,13 @@ shaderDivs.forEach(element => {
 
         animate();
 
+        //if it's last image remove loader
+        if (i === shaderDivs.length - 1) {
+            setTimeout(() => loadingPage.remove(), 3000)
+
+        }
+
+
         // function sizer() {
 
         //     console.log('sizer')
@@ -65,7 +74,5 @@ shaderDivs.forEach(element => {
         // window.onresize = sizer;
 
     })
-
-
 
 })
