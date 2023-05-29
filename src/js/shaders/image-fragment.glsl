@@ -1,8 +1,11 @@
 uniform float time;
 uniform sampler2D image;
+uniform vec3 hoverState;
 
 varying vec2 vUv;
 varying vec2 distortion;
+
+#define HOVERAMOUNT 0.4;
 
 mat2 rotation2d(float angle) {
     float s = sin(angle);
@@ -26,17 +29,29 @@ void main(void) {
     //cropping the picture
     vec2 uv = vUv;
 
-    vec4 redChannel = SampleColor(uv + distortion * rotation2d(1.0));
+    vec2 rUv = vUv;
+    rUv *= 1.0 - hoverState.r * HOVERAMOUNT;
+    rUv += hoverState.r / 2.0 * HOVERAMOUNT;
+
+    vec4 redChannel = SampleColor((rUv + distortion * rotation2d(1.0)));
     redChannel.g = 0.0;
     redChannel.b = 0.0;
     redChannel.a = redChannel.r;
 
-    vec4 greenChannel = SampleColor(uv + distortion * rotation2d(2.0));
+    vec2 gUv = vUv;
+    gUv *= 1.0 - hoverState.g * HOVERAMOUNT;
+    gUv += hoverState.g / 2.0 * HOVERAMOUNT;
+
+    vec4 greenChannel = SampleColor(gUv + distortion * rotation2d(2.0));
     greenChannel.r = 0.0;
     greenChannel.b = 0.0;
     greenChannel.a = greenChannel.g;
 
-    vec4 blueChannel = SampleColor(uv + distortion * rotation2d(3.0));
+    vec2 bUv = vUv;
+    bUv *= 1.0 - hoverState.b * HOVERAMOUNT;
+    bUv += hoverState.b / 2.0 * HOVERAMOUNT;
+
+    vec4 blueChannel = SampleColor(bUv + distortion * rotation2d(3.0));
     blueChannel.r = 0.0;
     blueChannel.g = 0.0;
     blueChannel.a = blueChannel.b;

@@ -4,7 +4,7 @@ import Lenis from '@studio-freight/lenis';
 import { gsap } from 'gsap';
 
 import imageVertex from './shaders/image-vertex.glsl'
-import imageFragment from './shaders/rgb-fragment.glsl'
+import imageFragment from './shaders/image-fragment.glsl'
 
 class Sketch {
     constructor(options) {
@@ -52,7 +52,7 @@ class Sketch {
 
             this.loaderScreen.remove();
 
-        })
+        });
 
     }
 
@@ -117,13 +117,13 @@ class Sketch {
         });
     }
 
-
     addImages() {
         this.material = new THREE.ShaderMaterial({
             uniforms: {
                 time: { value: 0.0 },
                 image: { value: null },
-                strength: { value: 1.0 }
+                strength: { value: 1.0 },
+                hoverState: { value: new THREE.Vector3(0, 0, 0) }
             },
             vertexShader: imageVertex,
             fragmentShader: imageFragment,
@@ -144,11 +144,49 @@ class Sketch {
             material.uniforms.image.value = texture;
             this.materials.push(material);
 
+            img.addEventListener('mouseenter', () => {
+                gsap.to(material.uniforms.hoverState.value, {
+                    duration: .6,
+                    x: 1,
+                    ease: 'power1.inOut',
+                })
+                gsap.to(material.uniforms.hoverState.value, {
+                    duration: .8,
+                    y: 1,
+                    ease: 'power1.inOut'
+                })
+                gsap.to(material.uniforms.hoverState.value, {
+                    duration: 1,
+                    z: 1,
+                    ease: 'power1.inOut'
+                })
+
+            })
+
+            img.addEventListener('mouseleave', () => {
+                gsap.to(material.uniforms.hoverState.value, {
+                    duration: .6,
+                    x: 0,
+                    ease: 'power1.inOut'
+                })
+                gsap.to(material.uniforms.hoverState.value, {
+                    duration: .8,
+                    y: 0,
+                    ease: 'power1.inOut'
+                })
+                gsap.to(material.uniforms.hoverState.value, {
+                    duration: 1,
+                    z: 0,
+                    ease: 'power1.inOut'
+                })
+            })
+
+
+
             const mesh = new THREE.Mesh(geometry, material);
             mesh.scale.set(width, height);
 
             this.scene.add(mesh);
-
 
             return ({
                 mesh,
