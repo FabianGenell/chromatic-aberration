@@ -12,13 +12,15 @@ class Sketch {
 
         this.scene = new THREE.Scene();
 
-        this.camera = new THREE.PerspectiveCamera(75, this.width / this.height, 0.1, 1000);
-        this.camera.position.z = 10;
-        this.camera.fov = 2 * Math.atan((this.height / 2) / this.camera.position.z) * (180 / Math.PI);
-
         this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         this.renderer.setSize(this.width, this.height);
         this.renderer.setPixelRatio(Math.max(window.devicePixelRatio, 2));
+
+        this.camera = new THREE.PerspectiveCamera(75, this.width / this.height, 0.1, 1000);
+        this.camera.position.z = 10;
+        this.camera.fov = 2 * Math.atan((this.height / 2) / this.camera.position.z) * (180 / Math.PI);
+        this.camera.updateProjectionMatrix();
+
 
         this.container.appendChild(this.renderer.domElement);
 
@@ -32,10 +34,30 @@ class Sketch {
 
         Promise.all([loadImages]).then(() => {
             this.addObjects()
+            this.setupResize();
+
+
             this.render();
 
         })
 
+    }
+
+    resize() {
+        this.height = this.container.offsetHeight;
+        this.width = this.container.offsetWidth;
+
+        this.camera.aspect = this.width / this.height;
+        this.camera.fov = 2 * Math.atan((this.height / 2) / this.camera.position.z) * (180 / Math.PI);
+
+        this.renderer.setSize(this.width, this.height);
+
+        this.camera.updateProjectionMatrix();
+
+    }
+
+    setupResize() {
+        window.addEventListener('resize', this.resize.bind(this));
     }
 
     addImages() {
@@ -43,7 +65,7 @@ class Sketch {
     }
 
     addObjects() {
-        this.geometry = new THREE.SphereGeometry(1, 1, 10, 10);
+        this.geometry = new THREE.PlaneGeometry(100, 100, 100, 100);
         this.material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
 
         this.mesh = new THREE.Mesh(this.geometry, this.material);
