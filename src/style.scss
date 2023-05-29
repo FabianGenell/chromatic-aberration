@@ -12,16 +12,14 @@ body {
         text-shadow: 3px 2px 2px rgba(251, 12, 12,1), 0px -1px 3px rgba(12, 79, 251,.5),-3px 0px 2px rgba(52, 251, 12, 1);
     }
 
-    canvas.background {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 100vmax;
-        height: 100vmax;
-        pointer-events: none;
-        z-index: -100;
-    }
+    #three-container{
+      height: 100vh;
+      width: 100vw;
+      position: fixed;
+      z-index: 10;
+      top: 0;
+      left: 0;
+   }   
 }
 
 section.loading {
@@ -150,46 +148,24 @@ main {
 }
 
 section.images {
-    width: 100%;
-
-    div.shader-container {
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        padding: 100px;
-        div.shader {
-            position: relative;
-
-            &.loaded img{
-                opacity: 0;
-            }
-
-            img {
-                width: 100%;
-                max-width: 500px;
-            }
-    
-            canvas {
-                position: absolute;
-                top: -100px;
-                left: -100px;
-                bottom: -100px;
-                right: -100px;
-                width: calc(100% + 200px);
-                height: calc(100% + 200px);
-            }
+   width: 100%;
+   width: 100%;
+   display: flex;
+   justify-content: center;
+   flex-direction: column;
+   align-items: center;
 
 
-        }
-    }
+   div.shader {
+      margin: 100px 0;
+      position: relative;
 
+      img {
+            width: 100%;
+            max-width: 500px;
+      }
+   }
 }
 
-#three-container{
-   height: 100vh;
-   width: 100vw;
-   position: fixed;
-   z-index: 10;
-   top: 0;
-   left: 0;
-}
+
+

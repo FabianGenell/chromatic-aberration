@@ -1,10 +1,16 @@
 import * as THREE from 'three';
 import imagesLoaded from 'imagesloaded';
 import Lenis from '@studio-freight/lenis';
+import { gsap } from 'gsap';
+
+import imageVertex from './shaders/image-vertex.glsl'
+import imageFragment from './shaders/rgb-fragment.glsl'
 
 class Sketch {
     constructor(options) {
         this.time = 0;
+
+        this.loaderScreen = document.querySelector('.loading');
 
         this.container = options.dom;
         this.height = this.container.offsetHeight;
@@ -27,17 +33,24 @@ class Sketch {
 
         this.images = [...document.querySelectorAll('.shader img')];
 
+        // this.images = [this.images[0]];
+
         const loadImages = new Promise((resolve) => imagesLoaded(
             document.querySelectorAll('img'), { background: true }, resolve)
         );
 
+        this.currentScroll = 0;
+
 
         Promise.all([loadImages]).then(() => {
-            this.addObjects()
             this.setupResize();
-
-
+            this.addImages();
+            this.setImagePosition();
+            this.setupScroll();
+            this.animateRGBEffect();
             this.render();
+
+            this.loaderScreen.remove();
 
         })
 
@@ -54,33 +67,117 @@ class Sketch {
 
         this.camera.updateProjectionMatrix();
 
+        this.imageStore.forEach((image) => {
+            const { top, left, width, height } = image.img.getBoundingClientRect();
+            image.mesh.scale.set(width, height);
+            image.top = top;
+            image.left = left;
+            image.width = width;
+            image.height = height;
+        });
+
+        this.setImagePosition();
+
     }
 
     setupResize() {
         window.addEventListener('resize', this.resize.bind(this));
     }
 
+    setupScroll() {
+        this.lenis = new Lenis({ lerp: 0.05 })
+
+        this.lenis.on('scroll', (e) => {
+            this.currentScroll += e.velocity;
+            this.setImagePosition();
+            this.animateRGBEffect();
+
+        })
+
+    }
+
+    animateRGBEffect() {
+
+        this.imageStore.forEach((image) => {
+
+            if (image.top < this.currentScroll + this.height && image.top + image.height > this.currentScroll) {
+                gsap.to(image.mesh.material.uniforms.strength, {
+                    value: 0,
+                    delay: .3,
+                    duration: 3,
+
+                })
+            }
+            else {
+                gsap.to(image.mesh.material.uniforms.strength, {
+                    value: 1,
+                    duration: .4
+                })
+            }
+        });
+    }
+
+
     addImages() {
+        this.material = new THREE.ShaderMaterial({
+            uniforms: {
+                time: { value: 0.0 },
+                image: { value: null },
+                strength: { value: 1.0 }
+            },
+            vertexShader: imageVertex,
+            fragmentShader: imageFragment,
+            wireframe: false
+        })
 
+        this.materials = [];
+
+        this.imageStore = this.images.map((img) => {
+            const { top, left, width, height } = img.getBoundingClientRect();
+
+            img.style.opacity = 0;
+
+            const geometry = new THREE.PlaneGeometry(1, 1, 20, 2);
+            const texture = new THREE.TextureLoader().load(img.src);
+
+            const material = this.material.clone();
+            material.uniforms.image.value = texture;
+            this.materials.push(material);
+
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.scale.set(width, height);
+
+            this.scene.add(mesh);
+
+
+            return ({
+                mesh,
+                img,
+                top,
+                left,
+                width,
+                height
+            });
+        })
     }
 
-    addObjects() {
-        this.geometry = new THREE.PlaneGeometry(100, 100, 100, 100);
-        this.material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+    setImagePosition() {
+        this.imageStore.forEach(image => {
+            //Converting coordinates from page (0,0 is in topleft) to three (0,0 is in center)
+            image.mesh.position.x = -this.width / 2 + image.left + image.width / 2;
+            image.mesh.position.y = this.height / 2 - image.top - image.height / 2 + this.currentScroll;
 
-        this.mesh = new THREE.Mesh(this.geometry, this.material);
-
-        this.scene.add(this.mesh);
-
+        })
     }
+
 
     render(time) {
-        this.time += 0.05;
-        // this.materials.forEach((material) => material.uniforms.time.value = this.time);
+        this.time += 0.02;
+        this.materials.forEach((material) => material.uniforms.time.value = this.time);
 
         // this.customPass.uniforms.scrollSpeed.value = this.lenis.velocity;
 
-        // this.lenis.raf(time)
+        this.lenis.raf(time)
         this.renderer.render(this.scene, this.camera);
 
         window.requestAnimationFrame(this.render.bind(this)); //We use bind(this) so that the context of 'this' doesn't get lost (or something like that)
