@@ -1,12 +1,7 @@
-#ifdef GL_ES
-precision highp float;
-#endif
+uniform float time;
+uniform vec2 mouse;
 
-uniform float u_time;
-uniform vec2 u_resolution;
-uniform vec2 u_mouse;
-
-varying vec2 v_texcoord;
+varying vec2 vUv;
 
 #define NUM_OCTAVES 5
 
@@ -45,19 +40,18 @@ mat2 rotation2d(float angle) {
 }
 
 void main(void) {
-    vec2 uv = v_texcoord;
+    vec2 uv = vUv;
 
     //find distance between mouse and points
-    vec2 mouse = u_mouse / u_resolution;
     float distance = distance(uv, mouse);
     float strength = smoothstep(0.2, 0.0, distance);
 
-    vec2 movement = vec2(u_time * 1.1, u_time * -1.01);
-    movement *= rotation2d(u_time * 0.01) * 0.09;
+    vec2 movement = vec2(time * 1.1, time * -1.01);
+    movement *= rotation2d(time * 0.01) * 0.09;
 
     float f = fbm(uv + movement);
     f *= 5.0;
-    f += smoothstep(0.0, 0.9, strength);
+    // f += smoothstep(0.0, 0.9, strength);
 
     float grain = rand(100.0 * uv);
 

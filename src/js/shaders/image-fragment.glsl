@@ -29,6 +29,8 @@ void main(void) {
     //cropping the picture
     vec2 uv = vUv;
 
+    // vec2 distortion = vec2(0.0);
+
     vec2 rUv = vUv;
     rUv *= 1.0 - hoverState.r * HOVERAMOUNT;
     rUv += hoverState.r / 2.0 * HOVERAMOUNT;
@@ -56,7 +58,7 @@ void main(void) {
     blueChannel.g = 0.0;
     blueChannel.a = blueChannel.b;
 
-    vec4 blackChannel = SampleColor(uv + distortion * rotation2d(4.5));
+    vec4 blackChannel = SampleColor(uv);
     blackChannel.r = 0.0;
     blackChannel.g = 0.0;
     blackChannel.b = 0.0;

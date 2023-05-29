@@ -6,6 +6,9 @@ import { gsap } from 'gsap';
 import imageVertex from './shaders/image-vertex.glsl'
 import imageFragment from './shaders/image-fragment.glsl'
 
+import backgroundVertex from './shaders/background-vertex.glsl'
+import backgroundFragment from './shaders/background-fragment.glsl'
+
 class Sketch {
     constructor(options) {
         this.time = 0;
@@ -48,7 +51,9 @@ class Sketch {
             this.setImagePosition();
             this.setupScroll();
             this.animateRGBEffect();
+            this.addBackground();
             this.render();
+
 
             this.loaderScreen.remove();
 
@@ -208,11 +213,36 @@ class Sketch {
         })
     }
 
+    addBackground() {
+        this.backgroundMaterial = new THREE.ShaderMaterial({
+            uniforms: {
+                time: { value: 0.0 },
+                image: { value: null },
+                strength: { value: 1.0 },
+                hoverState: { value: new THREE.Vector3(0, 0, 0) }
+            },
+            vertexShader: backgroundVertex,
+            fragmentShader: backgroundFragment,
+            wireframe: false,
+
+        });
+        // Create a full-screen quad geometry
+        const quad = new THREE.PlaneGeometry(this.width * 2, this.height * 2, 1, 1);
+        // quad.scale(this.height, this.width);
+        // Create a quad mesh with the shader material
+        const quadMesh = new THREE.Mesh(quad, this.backgroundMaterial);
+
+        quadMesh.position.z = -2;
+
+        this.scene.add(quadMesh);
+
+    }
 
     render(time) {
         this.time += 0.02;
         this.materials.forEach((material) => material.uniforms.time.value = this.time);
 
+        // this.backgroundMaterial.uniforms.time.value = time;
         // this.customPass.uniforms.scrollSpeed.value = this.lenis.velocity;
 
         this.lenis.raf(time)
