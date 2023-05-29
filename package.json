@@ -1,0 +1,10 @@
+{
+  "devDependencies": {
+    "@parcel/transformer-sass": "2.8.3"
+  },
+  "dependencies": {
+    "@studio-freight/lenis": "^1.0.13",
+    "imagesloaded": "^5.0.0",
+    "three": "^0.152.2"
+  }
+}
