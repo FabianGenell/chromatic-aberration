@@ -2,6 +2,7 @@ uniform float time;
 uniform vec2 mouse;
 
 varying vec2 vUv;
+varying vec2 movement;
 
 #define NUM_OCTAVES 5
 
@@ -32,26 +33,27 @@ float fbm(vec2 x) {
     return v;
 }
 
-mat2 rotation2d(float angle) {
-    float s = sin(angle);
-    float c = cos(angle);
+// mat2 rotation2d(float angle) {
+//     float s = sin(angle);
+//     float c = cos(angle);
 
-    return mat2(c, -s, s, c);
-}
+//     return mat2(c, -s, s, c);
+// }
 
 void main(void) {
     vec2 uv = vUv;
 
-    //find distance between mouse and points
-    float distance = distance(uv, mouse);
-    float strength = smoothstep(0.2, 0.0, distance);
+    // //find distance between mouse and points
+    // float distance = distance(uv, mouse);
+    // float strength = smoothstep(0.2, 0.0, distance);
 
-    vec2 movement = vec2(time * 1.1, time * -1.01);
-    movement *= rotation2d(time * 0.01) * 0.09;
+    // vec2 movement = vec2(time * 1.1, time * -1.01);
+    // movement *= rotation2d(time * 0.01) * 0.09;
+
+    // f += smoothstep(0.0, 0.9, strength);
 
     float f = fbm(uv + movement);
     f *= 5.0;
-    // f += smoothstep(0.0, 0.9, strength);
 
     float grain = rand(100.0 * uv);
 

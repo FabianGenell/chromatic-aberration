@@ -51,7 +51,7 @@ class Sketch {
             this.setImagePosition();
             this.setupScroll();
             this.animateRGBEffect();
-            this.addBackground();
+            // this.addBackground();
             this.render();
 
 
@@ -243,7 +243,6 @@ class Sketch {
         this.materials.forEach((material) => material.uniforms.time.value = this.time);
 
         // this.backgroundMaterial.uniforms.time.value = time;
-        // this.customPass.uniforms.scrollSpeed.value = this.lenis.velocity;
 
         this.lenis.raf(time)
         this.renderer.render(this.scene, this.camera);
